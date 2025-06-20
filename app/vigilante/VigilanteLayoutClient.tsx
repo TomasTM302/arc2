@@ -67,7 +67,7 @@ export default function VigilanteLayoutClient({ children }: { children: React.Re
               <span>Escanear QR</span>
             </Link>
             <Link
-              href="/"
+              href="/home"
               className={`flex items-center py-3 px-4 text-gray-300 hover:bg-[#1a4580] hover:text-white transition-colors`}
             >
               <ClipboardList className="mr-3 h-5 w-5" />
