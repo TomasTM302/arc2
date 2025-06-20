@@ -11,13 +11,13 @@ export default function FloatingNavBar() {
   const pathname = usePathname()
   const router = useRouter()
   const [cartCount, setCartCount] = useState(0)
-  const isHomePage = pathname === "/"
+  const isHomePage = pathname === "/home"
   const isVigilantePage = pathname === "/vigilante" || pathname.startsWith("/vigilante/")
   const isVigilante = false // Assuming default value, adjust as needed
   const isMantenimiento = false // Assuming default value, adjust as needed
 
   // Don't show the navigation bar on login page, admin routes, or vigilante pages
-  if (pathname === "/login" || isAdmin || pathname.startsWith("/admin") || isVigilantePage) {
+  if (pathname === "/" || pathname === "/login" || isAdmin || pathname.startsWith("/admin") || isVigilantePage) {
     return null
   }
 
@@ -35,7 +35,7 @@ export default function FloatingNavBar() {
         <div className="container mx-auto flex justify-between items-center">
           {/* En la página principal, solo mostrar el icono de usuario */}
           {isHomePage ? (
-            <Link href={isAuthenticated ? "/profile" : "/login"} className="flex flex-col items-center">
+          <Link href={isAuthenticated ? "/profile" : "/"} className="flex flex-col items-center">
               <User className="h-6 w-6 text-[#0e2c52]" />
             </Link>
           ) : (
@@ -46,7 +46,7 @@ export default function FloatingNavBar() {
           )}
 
           {/* Botón central */}
-          <Link href="/" className="flex items-center justify-center">
+          <Link href="/home" className="flex items-center justify-center">
             <div className="bg-[#0e2c52] text-white rounded-full w-10 h-10 flex items-center justify-center">
               <span className="font-bold">P</span>
             </div>
