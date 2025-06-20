@@ -26,7 +26,7 @@ export default function AuxiliarPage() {
   // Verificar que el usuario tenga acceso
   useEffect(() => {
     if (!isAuthenticated || !isMantenimiento) {
-      router.push("/")
+      router.push("/home")
     }
   }, [isAuthenticated, isMantenimiento, router])
 

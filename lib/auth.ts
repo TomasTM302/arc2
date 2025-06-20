@@ -19,6 +19,16 @@ interface Credentials {
   password: string
 }
 
+interface RegisterData {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  house: string
+  password: string
+  role: UserRole
+}
+
 interface AuthState {
   user: User | null
   token: string | null
@@ -27,9 +37,14 @@ interface AuthState {
   isVigilante: boolean
   isMantenimiento: boolean
   rememberMe: boolean
+  users: User[]
   login: (credentials: Credentials) => Promise<{ success: boolean; message?: string }>
   logout: () => void
   setRememberMe: (value: boolean) => void
+  fetchUsers: () => Promise<void>
+  getUsers: () => User[]
+  register: (data: RegisterData) => Promise<{ success: boolean; message?: string }>
+  deleteUser: (id: string) => Promise<{ success: boolean; message?: string }>
   resetStore: () => void
 }
 
@@ -43,6 +58,7 @@ export const useAuthStore = create<AuthState>()(
       isVigilante: false,
       isMantenimiento: false,
       rememberMe: false,
+      users: [],
 
       login: async (credentials) => {
         try {
@@ -83,10 +99,64 @@ export const useAuthStore = create<AuthState>()(
           isVigilante: false,
           isMantenimiento: false,
         })
+
+        if (typeof window !== "undefined") {
+          window.location.href = "/"
+        }
       },
 
       setRememberMe: (value: boolean) => {
         set({ rememberMe: value })
+      },
+
+      fetchUsers: async () => {
+        try {
+          const res = await fetch('/api/users')
+          const data = await res.json()
+          if (res.ok && data.success) {
+            set({ users: data.users })
+          }
+        } catch (err) {
+          console.error(err)
+        }
+      },
+
+      getUsers: () => {
+        return get().users
+      },
+
+      register: async (data: RegisterData) => {
+        try {
+          const res = await fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          })
+          const result = await res.json()
+          if (res.ok && result.success) {
+            set({ users: [...get().users, result.user] })
+            return { success: true }
+          }
+          return { success: false, message: result.message || 'Error al registrar' }
+        } catch (err) {
+          console.error(err)
+          return { success: false, message: 'Error de servidor' }
+        }
+      },
+
+      deleteUser: async (id: string) => {
+        try {
+          const res = await fetch(`/api/users/${id}`, { method: 'DELETE' })
+          const data = await res.json()
+          if (res.ok && data.success) {
+            set({ users: get().users.filter((u) => u.id !== id) })
+            return { success: true }
+          }
+          return { success: false, message: data.message || 'Error al eliminar' }
+        } catch (err) {
+          console.error(err)
+          return { success: false, message: 'Error de servidor' }
+        }
       },
 
       resetStore: () => {
@@ -98,6 +168,7 @@ export const useAuthStore = create<AuthState>()(
           isVigilante: false,
           isMantenimiento: false,
           rememberMe: false,
+          users: [],
         })
       },
     }),

@@ -1,15 +1,19 @@
 "use client"
-import { useState } from "react"
-import { UserPlus } from "lucide-react"
+import { useEffect, useState } from "react"
+import { UserPlus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/lib/auth"
 import AuthGuard from "@/components/auth-guard"
 import RegisterUserModal from "@/components/register-user-modal"
 
 export default function UsersPage() {
-  const { getUsers } = useAuthStore()
+  const { getUsers, fetchUsers, deleteUser } = useAuthStore()
   const users = getUsers()
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+
+  useEffect(() => {
+    fetchUsers()
+  }, [])
 
   // Función para obtener el estilo y texto según el rol
   const getRoleBadgeStyle = (role: string) => {
@@ -45,6 +49,7 @@ export default function UsersPage() {
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Teléfono</th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Casa</th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Rol</th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -60,6 +65,14 @@ export default function UsersPage() {
                     <td className="py-3 px-4 text-sm">{user.house}</td>
                     <td className="py-3 px-4 text-sm">
                       <span className={`px-2 py-1 rounded-full text-xs ${bgColor} ${textColor}`}>{label}</span>
+                    </td>
+                    <td className="py-3 px-4 text-sm">
+                      <button
+                        onClick={() => deleteUser(user.id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 )
