@@ -2,20 +2,20 @@
 
 import { useState, useEffect } from "react"
 import { useAuthStore } from "@/lib/auth"
-import { useAuxiliarTasksStore } from "@/lib/auxiliar-tasks-store"
+import { useMantenimientoTasksStore } from "@/lib/mantenimiento-tasks-store"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FileText, Plus, Search, CalendarIcon } from "lucide-react"
 import { format, isAfter, isBefore, parseISO } from "date-fns"
 import { es } from "date-fns/locale"
-import NewReportModal from "@/components/auxiliar/new-report-modal"
-import ReportDetailModal from "@/components/auxiliar/report-detail-modal"
+import NewReportModal from "@/components/mantenimiento/new-report-modal"
+import ReportDetailModal from "@/components/mantenimiento/report-detail-modal"
 import { useRouter } from "next/navigation"
 import { Calendar } from "@/components/ui/calendar"
 
-export default function AuxiliarReports() {
+export default function MantenimientoReports() {
   const { user, isAuthenticated, isMantenimiento } = useAuthStore()
-  const { reports } = useAuxiliarTasksStore()
+  const { reports } = useMantenimientoTasksStore()
   const [searchQuery, setSearchQuery] = useState("")
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false)
   const [selectedReport, setSelectedReport] = useState<string | null>(null)
@@ -36,8 +36,8 @@ export default function AuxiliarReports() {
     }
   }, [isAuthenticated, isMantenimiento, router])
 
-  // Filtrar actividades por auxiliar
-  const myReports = user ? reports.filter((report) => report.auxiliarId === user.id) : []
+  // Filtrar actividades por usuario de mantenimiento
+  const myReports = user ? reports.filter((report) => report.mantenimientoId === user.id) : []
 
   // Función para formatear la fecha
   const formatDate = (dateString: string) => {

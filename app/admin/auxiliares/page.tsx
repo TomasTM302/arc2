@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useAuthStore } from "@/lib/auth"
-import { useAuxiliarTasksStore } from "@/lib/auxiliar-tasks-store"
+import { useMantenimientoTasksStore } from "@/lib/mantenimiento-tasks-store"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -14,9 +14,9 @@ import AuxiliarTaskDetailModal from "@/components/admin/auxiliar-task-detail-mod
 import AuthGuard from "@/components/auth-guard"
 import AuxiliarTaskReportModal from "@/components/admin/auxiliar-task-report-modal"
 
-export default function AdminAuxiliarTasks() {
+export default function AdminMantenimientoTasks() {
   const { users } = useAuthStore()
-  const { tasks } = useAuxiliarTasksStore()
+  const { tasks } = useMantenimientoTasksStore()
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [auxiliarFilter, setAuxiliarFilter] = useState("all")

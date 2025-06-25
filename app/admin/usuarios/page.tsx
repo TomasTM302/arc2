@@ -11,6 +11,17 @@ export default function UsersPage() {
   const users = getUsers()
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('¿Seguro que deseas eliminar este usuario?')) return
+    if (
+      !confirm(
+        'Esta acción eliminará el registro permanentemente. ¿Continuar?'
+      )
+    )
+      return
+    await deleteUser(id)
+  }
+
   useEffect(() => {
     fetchUsers()
   }, [])
@@ -47,6 +58,7 @@ export default function UsersPage() {
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Nombre</th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Email</th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Teléfono</th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Condominio</th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Casa</th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Rol</th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Acciones</th>
@@ -62,13 +74,14 @@ export default function UsersPage() {
                     </td>
                     <td className="py-3 px-4 text-sm">{user.email}</td>
                     <td className="py-3 px-4 text-sm">{user.phone}</td>
+                    <td className="py-3 px-4 text-sm">{user.condominiumId}</td>
                     <td className="py-3 px-4 text-sm">{user.house}</td>
                     <td className="py-3 px-4 text-sm">
                       <span className={`px-2 py-1 rounded-full text-xs ${bgColor} ${textColor}`}>{label}</span>
                     </td>
                     <td className="py-3 px-4 text-sm">
                       <button
-                        onClick={() => deleteUser(user.id)}
+                        onClick={() => handleDelete(user.id)}
                         className="text-red-600 hover:text-red-800"
                       >
                         <Trash2 className="w-4 h-4" />

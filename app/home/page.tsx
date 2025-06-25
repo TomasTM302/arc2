@@ -12,11 +12,11 @@ import { QrCode } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function Home() {
-  const { isAuthenticated, isAdmin, isVigilante, isAuxiliar, user, logout } = useAuthStore()
+  const { isAuthenticated, isAdmin, isVigilante, isMantenimiento, user, logout } = useAuthStore()
   const { createSecurityAlert } = useSecurityStore()
   const router = useRouter()
 
-  // Redirigir vigilantes y auxiliares a sus respectivos dashboards
+  // Redirigir vigilantes y personal de mantenimiento a sus respectivos dashboards
   if (isVigilante) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0e2c52]">
@@ -25,10 +25,10 @@ export default function Home() {
     )
   }
 
-  if (isAuxiliar) {
+  if (isMantenimiento) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0e2c52]">
-        <p className="text-white">Redirigiendo al panel de auxiliar...</p>
+        <p className="text-white">Redirigiendo al panel de mantenimiento...</p>
       </div>
     )
   }
@@ -48,7 +48,7 @@ export default function Home() {
   const isLastItemAlone = services.length % 2 !== 0
 
   // Add a check for isRegularResident similar to the one in more/page.tsx
-  const isRegularResident = !isAdmin && !isVigilante && !isAuxiliar
+  const isRegularResident = !isAdmin && !isVigilante && !isMantenimiento
 
   // Función para manejar el clic en el botón de leer QR
   const handleQrButtonClick = () => {

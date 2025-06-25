@@ -5,18 +5,18 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuthStore } from "@/lib/auth"
-import { useAuxiliarTasksStore, type Task, type Report } from "@/lib/auxiliar-tasks-store"
+import { useMantenimientoTasksStore, type Task, type Report } from "@/lib/mantenimiento-tasks-store"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FileText, Plus, Search, CalendarIcon, ArrowLeft, ClipboardList, Clock } from "lucide-react"
 import { format, isAfter, isBefore, parseISO } from "date-fns"
 import { es } from "date-fns/locale"
-import NewReportModal from "@/components/auxiliar/new-report-modal"
-import ReportDetailModal from "@/components/auxiliar/report-detail-modal"
-import TaskDetailModal from "@/components/auxiliar/task-detail-modal"
-import CompleteTaskModal from "@/components/auxiliar/complete-task-modal"
-import AddReminderModal from "@/components/auxiliar/add-reminder-modal"
+import NewReportModal from "@/components/mantenimiento/new-report-modal"
+import ReportDetailModal from "@/components/mantenimiento/report-detail-modal"
+import TaskDetailModal from "@/components/mantenimiento/task-detail-modal"
+import CompleteTaskModal from "@/components/mantenimiento/complete-task-modal"
+import AddReminderModal from "@/components/mantenimiento/add-reminder-modal"
 import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
 
@@ -33,7 +33,7 @@ export default function CondominiumDashboard() {
     .replace("Condo", "Condominio")
 
   const { user, isAuthenticated, isMantenimiento } = useAuthStore()
-  const { reports, tasks, updateTask } = useAuxiliarTasksStore()
+  const { reports, tasks, updateTask } = useMantenimientoTasksStore()
 
   // Estados para los modales y filtros
   const [searchQuery, setSearchQuery] = useState("")
@@ -79,7 +79,7 @@ export default function CondominiumDashboard() {
 
   // Filtrar reportes por usuario actual y condominio
   const myReports = user
-    ? reports.filter((report) => report.auxiliarId === user.id && belongsToCondominium(report))
+    ? reports.filter((report) => report.mantenimientoId === user.id && belongsToCondominium(report))
     : []
 
   // Reemplazar esta sección:
@@ -282,7 +282,7 @@ export default function CondominiumDashboard() {
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center mb-4">
         <button
-          onClick={() => router.push("/auxiliar/reportes-condominio")}
+          onClick={() => router.push("/mantenimiento/reportes-condominio")}
           className="mr-3 text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft size={20} />

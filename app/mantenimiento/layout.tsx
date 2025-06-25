@@ -7,9 +7,9 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuthStore } from "@/lib/auth"
 import { CheckSquare, LogOut, User, Plus, ClipboardList, Building2 } from "lucide-react"
-import NewReportModal from "@/components/auxiliar/new-report-modal"
+import NewReportModal from "@/components/mantenimiento/new-report-modal"
 
-export default function AuxiliarLayout({ children }: { children: React.ReactNode }) {
+export default function MantenimientoLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isMantenimiento, logout, user } = useAuthStore()
   const router = useRouter()
   const pathname = usePathname()
@@ -23,8 +23,8 @@ export default function AuxiliarLayout({ children }: { children: React.ReactNode
     }
   }, [isAuthenticated, isMantenimiento, router])
 
-  // No mostrar el layout de auxiliar para páginas que no son de auxiliar
-  if (!pathname.startsWith("/auxiliar")) {
+  // No mostrar el layout de mantenimiento para páginas que no son de mantenimiento
+  if (!pathname.startsWith("/mantenimiento")) {
     return <div className="min-h-screen">{children}</div>
   }
 
@@ -47,9 +47,9 @@ export default function AuxiliarLayout({ children }: { children: React.ReactNode
       <nav className="bg-[#0e2c52] text-white border-t border-[#1a4580] shadow-md sticky top-0 z-30 hidden md:block">
         <div className="flex flex-wrap">
           <Link
-            href="/auxiliar/reportes"
+            href="/mantenimiento/reportes"
             className={`flex items-center py-3 px-4 ${
-              pathname === "/auxiliar/reportes"
+              pathname === "/mantenimiento/reportes"
                 ? "bg-[#1a4580] text-white"
                 : "text-gray-300 hover:bg-[#1a4580] hover:text-white"
             } transition-colors`}
@@ -58,9 +58,9 @@ export default function AuxiliarLayout({ children }: { children: React.ReactNode
             <span>Mis Actividades</span>
           </Link>
           <Link
-            href="/auxiliar/reportes-condominio"
+            href="/mantenimiento/reportes-condominio"
             className={`flex items-center py-3 px-4 ${
-              pathname === "/auxiliar/reportes-condominio"
+              pathname === "/mantenimiento/reportes-condominio"
                 ? "bg-[#1a4580] text-white"
                 : "text-gray-300 hover:bg-[#1a4580] hover:text-white"
             } transition-colors`}
@@ -69,18 +69,18 @@ export default function AuxiliarLayout({ children }: { children: React.ReactNode
             <span>Condominios</span>
           </Link>
           <Link
-            href="/auxiliar"
+            href="/mantenimiento"
             className={`flex items-center py-3 px-4 ${
-              pathname === "/auxiliar" ? "bg-[#1a4580] text-white" : "text-gray-300 hover:bg-[#1a4580] hover:text-white"
+              pathname === "/mantenimiento" ? "bg-[#1a4580] text-white" : "text-gray-300 hover:bg-[#1a4580] hover:text-white"
             } transition-colors`}
           >
             <CheckSquare className="mr-2 h-5 w-5" />
             <span>Mis Tareas</span>
           </Link>
           <Link
-            href="/auxiliar/perfil"
+            href="/mantenimiento/perfil"
             className={`flex items-center py-3 px-4 ${
-              pathname === "/auxiliar/perfil"
+              pathname === "/mantenimiento/perfil"
                 ? "bg-[#1a4580] text-white"
                 : "text-gray-300 hover:bg-[#1a4580] hover:text-white"
             } transition-colors`}
@@ -106,8 +106,8 @@ export default function AuxiliarLayout({ children }: { children: React.ReactNode
         <div className="relative flex items-center justify-between bg-gray-200 rounded-full px-8 py-2 shadow-lg">
           {/* Botón Actividades (antes Tareas) */}
           <Link
-            href="/auxiliar/reportes-condominio"
-            className={`flex flex-col items-center ${pathname === "/auxiliar/reportes-condominio" ? "text-[#0e2c52] font-medium" : "text-gray-600"}`}
+            href="/mantenimiento/reportes-condominio"
+            className={`flex flex-col items-center ${pathname === "/mantenimiento/reportes-condominio" ? "text-[#0e2c52] font-medium" : "text-gray-600"}`}
           >
             <ClipboardList className="h-6 w-6" />
             <span className="text-xs mt-1">Condominios</span>

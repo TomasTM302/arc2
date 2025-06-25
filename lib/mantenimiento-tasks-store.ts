@@ -31,13 +31,13 @@ export interface Comment {
   createdAt: string
 }
 
-// Actualizar la interfaz AuxiliarTaskReport para incluir el campo taskId
+// Interfaz para reportes del personal de mantenimiento
 export interface Report {
   id: string
   title: string
   description: string
-  auxiliarId: string
-  auxiliarName: string
+  mantenimientoId: string
+  mantenimientoName: string
   createdAt: string
   images?: string[]
   taskId?: string
@@ -46,7 +46,7 @@ export interface Report {
   condominium?: string // Añadido para guardar el condominio
 }
 
-interface AuxiliarTasksState {
+interface MantenimientoTasksState {
   tasks: Task[]
   reports: Report[]
   addTask: (task: Omit<Task, "id" | "createdAt" | "comments" | "updatedAt">) => void
@@ -59,7 +59,7 @@ interface AuxiliarTasksState {
   deleteReport: (id: string) => void
 }
 
-export const useAuxiliarTasksStore = create<AuxiliarTasksState>()(
+export const useMantenimientoTasksStore = create<MantenimientoTasksState>()(
   persist(
     (set) => ({
       tasks: [
@@ -100,8 +100,8 @@ export const useAuxiliarTasksStore = create<AuxiliarTasksState>()(
           title: "Reparación de iluminación en alberca",
           description: "Se reemplazaron 3 focos LED en el área de la alberca que no funcionaban",
           createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          auxiliarId: "auxiliar-1",
-          auxiliarName: "Auxiliar Mantenimiento",
+          mantenimientoId: "auxiliar-1",
+          mantenimientoName: "Auxiliar Mantenimiento",
           status: "completed",
         },
       ],
@@ -182,7 +182,7 @@ export const useAuxiliarTasksStore = create<AuxiliarTasksState>()(
       },
     }),
     {
-      name: "auxiliar-tasks-storage",
+      name: "mantenimiento-tasks-storage",
     },
   ),
 )

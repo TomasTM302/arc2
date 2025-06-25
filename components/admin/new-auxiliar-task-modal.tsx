@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { useAuxiliarTasksStore } from "@/lib/auxiliar-tasks-store"
+import { useMantenimientoTasksStore } from "@/lib/mantenimiento-tasks-store"
 import { useAuthStore } from "@/lib/auth"
 
-interface NewAuxiliarTaskModalProps {
+interface NewMaintenanceTaskModalProps {
   isOpen: boolean
   onClose: () => void
 }
@@ -37,8 +37,8 @@ const CONDOMINIUMS = [
   "Condominio 4-El Mirador",
 ]
 
-export default function NewAuxiliarTaskModal({ isOpen, onClose }: NewAuxiliarTaskModalProps) {
-  const { addTask } = useAuxiliarTasksStore()
+export default function NewMaintenanceTaskModal({ isOpen, onClose }: NewMaintenanceTaskModalProps) {
+  const { addTask } = useMantenimientoTasksStore()
   const { user, users } = useAuthStore()
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -48,8 +48,8 @@ export default function NewAuxiliarTaskModal({ isOpen, onClose }: NewAuxiliarTas
   const [condominium, setCondominium] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Obtener auxiliares
-  const auxiliares = users.filter((user) => user.role === "mantenimiento")
+  // Obtener personal de mantenimiento
+  const personal = users.filter((user) => user.role === "mantenimiento")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,7 +83,7 @@ export default function NewAuxiliarTaskModal({ isOpen, onClose }: NewAuxiliarTas
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-[95vw] max-w-[650px] max-h-[95vh] overflow-y-auto p-6">
         <DialogHeader className="mb-4">
-          <DialogTitle className="text-2xl font-bold">Nueva Tarea para Auxiliar</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Nueva Tarea de Mantenimiento</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5 py-3">
           <div className="space-y-3">
@@ -189,10 +189,10 @@ export default function NewAuxiliarTaskModal({ isOpen, onClose }: NewAuxiliarTas
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-200 text-black text-lg"
               required
             >
-              <option value="">Seleccionar auxiliar</option>
-              {auxiliares.map((auxiliar) => (
-                <option key={auxiliar.id} value={auxiliar.id}>
-                  {auxiliar.firstName} {auxiliar.lastName}
+              <option value="">Seleccionar personal</option>
+              {personal.map((pers) => (
+                <option key={pers.id} value={pers.id}>
+                  {pers.firstName} {pers.lastName}
                 </option>
               ))}
             </select>

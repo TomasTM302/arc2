@@ -1,6 +1,7 @@
+`tsx`
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Fragment } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,38 +19,99 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import Image from "next/image"
+
+// 1) Función de validación robusta (hoy y posteriores, hora ≥ ahora+1h)
+function validateDateTime(dateStr: string, timeStr: string): string | null {
+  const dateParts = dateStr.split("-").map(Number)
+  if (dateParts.length !== 3) {
+    return "Formato de fecha inválido (debe ser YYYY-MM-DD)"
+  }
+  const [year, month, day] = dateParts
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const visitDate = new Date(year, month - 1, day)
+  visitDate.setHours(0, 0, 0, 0)
+
+  if (visitDate < today) {
+    return "La fecha de visita no puede ser anterior a hoy"
+  }
+
+  if (!/^\d{1,2}:\d{2}$/.test(timeStr)) {
+    return "Formato de hora inválido (debe ser HH:MM)"
+  }
+  const [h, m] = timeStr.split(":").map(Number)
+  if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) {
+    return "Hora o minutos fuera de rango"
+  }
+
+  const entryDate = new Date(year, month - 1, day, h, m)
+  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000)
+  if (entryDate < oneHourLater) {
+    return "La hora de entrada debe ser al menos una hora posterior a la actual"
+  }
+
+  return null
+}
+
+// Parse the raw QR string into key/value pairs
+function parseQrData(data: string): Record<string, string> {
+  const lines = data.split("\n")
+  const result: Record<string, string> = {}
+  for (const line of lines) {
+    const idx = line.indexOf(":")
+    if (idx !== -1) {
+      const key = line.slice(0, idx).trim()
+      const value = line.slice(idx + 1).trim()
+      result[key] = value
+    }
+  }
+  return result
+}
+
+// Labels for well known QR fields
+function getFieldLabel(key: string): string {
+  const labels: Record<string, string> = {
+    NOMBRE: "Nombre",
+    TELÉFONO: "Teléfono",
+    TELEFONO: "Teléfono",
+    FECHA: "Fecha de visita",
+    HORA: "Hora de entrada",
+    DIRECCIÓN: "Destino",
+    DIRECCION: "Destino",
+    ACOMPAÑANTES: "Acompañantes",
+    ACOMPANANTES: "Acompañantes",
+  }
+  return labels[key] || key
+}
 
 interface ScanHistoryItem {
   id: number
   scanned_at: string
-  qr_data: string
-  license_plate_image_url?: string | null // Añadido
-  ine_image_url?: string | null // Añadido
+  ine?: string | null
+  tipo?: string | null
+  placa_vehiculo?: string | null
+  fecha_entrada?: string | null
+  fecha_salida?: string | null
+  vigilante_id?: number | null
+  condominio_id?: number | null
 }
 
-export default function QrScanHistory() {
+export default function EntryHistoryTable() {
   const [history, setHistory] = useState<ScanHistoryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const fetchHistory = async () => {
-    console.log("QrScanHistory - fetchHistory: Fetching history...")
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch("/api/scan-history")
+      const res = await fetch("/api/entry-history")
       const data = await res.json()
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Error al obtener historial")
       }
-      console.log(
-        "QrScanHistory - fetchHistory: Setting history with (first 5 items):",
-        data.data.slice(0, 5),
-      )
       setHistory(data.data)
     } catch (e: any) {
-      console.error("QrScanHistory - fetchHistory: Error fetching:", e)
       setError("No se pudo cargar el historial.")
       toast({
         title: "Error al cargar historial",
@@ -63,7 +125,7 @@ export default function QrScanHistory() {
 
   const clearHistory = async () => {
     try {
-      const res = await fetch("/api/scan-history", { method: "DELETE" })
+      const res = await fetch("/api/entry-history", { method: "DELETE" })
       const data = await res.json()
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Error al borrar historial")
@@ -74,7 +136,6 @@ export default function QrScanHistory() {
         description: "Todos los registros del historial han sido eliminados.",
       })
     } catch (e: any) {
-      console.error("Error clearing scan history:", e)
       toast({
         title: "Error al borrar historial",
         description: e.message || "No se pudo borrar el historial.",
@@ -90,7 +151,7 @@ export default function QrScanHistory() {
   return (
     <Card className="w-full max-w-2xl mt-8">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Historial de Escaneos</CardTitle>
+        <CardTitle>Historial de Entradas</CardTitle>
         <div className="flex gap-2">
           <Button variant="outline" size="icon" onClick={fetchHistory} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
@@ -107,8 +168,7 @@ export default function QrScanHistory() {
               <AlertDialogHeader>
                 <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acción no se puede deshacer. Se borrarán permanentemente todos los registros del historial de
-                  escaneos.
+                  Esta acción no se puede deshacer. Se borrarán permanentemente todos los registros del historial de entradas.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -128,51 +188,69 @@ export default function QrScanHistory() {
         {!loading && !error && history.length > 0 && (
           <ScrollArea className="h-[300px]">
             <ul className="space-y-2">
-              {history.map((item) => (
-                <li key={item.id} className="p-3 border rounded-md bg-muted/50 space-y-2">
-                  <div>
-                    <p className="text-sm font-medium truncate" title={item.qr_data}>
-                      Dato QR: {item.qr_data}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Escaneado: {new Date(item.scanned_at).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="flex gap-4 items-start">
-                    {item.license_plate_image_url && (
+              {history.map((item) => {
+                const qrData = parseQrData(item.scanned_at)
+                // Validamos fecha/hora del QR
+                const validationError = qrData.FECHA && qrData.HORA
+                  ? validateDateTime(qrData.FECHA, qrData.HORA)
+                  : "Faltan FECHA o HORA en el QR"
+                return (
+                  <li key={item.id} className="p-3 border rounded-md bg-muted/50 space-y-2">
+                    {validationError ? (
+                      <p className="text-sm font-medium text-red-600">
+                        ⚠️ Registro inválido: {validationError}
+                      </p>
+                    ) : (
                       <div>
-                        <p className="text-xs font-semibold mb-1">Placa:</p>
-                        <a href={item.license_plate_image_url} target="_blank" rel="noopener noreferrer">
-                          <Image
-                            src={item.license_plate_image_url || "/placeholder.svg"}
-                            alt="Foto de placa"
-                            width={100}
-                            height={75}
-                            className="rounded object-contain border"
-                          />
-                        </a>
+                        <p className="text-sm font-medium">Datos QR</p>
+                        <div className="grid grid-cols-[auto,1fr] gap-x-2 text-xs text-muted-foreground mb-2">
+                          {Object.entries(qrData).map(([key, value]) => (
+                            <Fragment key={key}>
+                              <span className="font-medium">{getFieldLabel(key)}:</span>
+                              <span className="truncate">{value}</span>
+                            </Fragment>
+                          ))}
+                        </div>
+                        {item.fecha_entrada && (
+                          <p className="text-xs text-muted-foreground">
+                            Entrada: {new Date(item.fecha_entrada).toLocaleString()}
+                          </p>
+                        )}
+                        {item.fecha_salida && (
+                          <p className="text-xs text-muted-foreground">
+                            Salida: {new Date(item.fecha_salida).toLocaleString()}
+                          </p>
+                        )}
+                        {item.tipo && <p className="text-xs text-muted-foreground">Tipo: {item.tipo}</p>}
+                        {(item.ine || item.placa_vehiculo) && (
+                          <div className="flex gap-2 mt-1">
+                            {item.ine && (
+                              <a
+                                href={item.ine}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-blue-600 text-xs truncate underline"
+                              >
+                                INE
+                              </a>
+                            )}
+                            {item.placa_vehiculo && (
+                              <a
+                                href={item.placa_vehiculo}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-blue-600 text-xs truncate underline"
+                              >
+                                Placa
+                              </a>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
-                    {item.ine_image_url && (
-                      <div>
-                        <p className="text-xs font-semibold mb-1">INE:</p>
-                        <a href={item.ine_image_url} target="_blank" rel="noopener noreferrer">
-                          <Image
-                            src={item.ine_image_url || "/placeholder.svg"}
-                            alt="Foto de INE"
-                            width={100}
-                            height={75}
-                            className="rounded object-contain border"
-                          />
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                  {!item.license_plate_image_url && !item.ine_image_url && (
-                    <p className="text-xs text-muted-foreground italic">Sin imágenes adicionales.</p>
-                  )}
-                </li>
-              ))}
+                  </li>
+                )
+              })}
             </ul>
           </ScrollArea>
         )}

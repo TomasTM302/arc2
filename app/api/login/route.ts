@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import pool from '@/lib/db'
+import { appRoleFromDbRole } from '@/lib/roles'
 
 export async function POST(request: Request) {
   const { email, password } = await request.json()
@@ -19,7 +20,8 @@ export async function POST(request: Request) {
         u.id, u.nombre, u.apellido, u.email, u.telefono, u.fecha_registro,
         u.password_hash,
         r.nombre AS rol_nombre,
-        p.numero AS casa_numero
+        p.numero AS casa_numero,
+        p.condominio_id
       FROM usuarios u
       JOIN roles r ON u.rol_id = r.id
       LEFT JOIN usuario_propiedad up ON u.id = up.usuario_id
@@ -63,9 +65,10 @@ export async function POST(request: Request) {
         email: user.email,
         phone: user.telefono,
         house: user.casa_numero || '',
-        role: user.rol_nombre,
-        createdAt: user.fecha_registro
-      }
+        condominiumId: user.condominio_id ? user.condominio_id.toString() : '',
+        role: appRoleFromDbRole(user.rol_nombre),
+        createdAt: user.fecha_registro,
+      },
     })
   } catch (err) {
     return NextResponse.json(

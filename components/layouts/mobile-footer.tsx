@@ -7,11 +7,11 @@ import { useAuthStore } from "@/lib/auth"
 
 export default function MobileFooter() {
   const pathname = usePathname()
-  const { isAuxiliar, isAdmin, isVigilante } = useAuthStore()
-  const isMaintenancePage = pathname.includes("/mantenimiento") || pathname.includes("/auxiliar")
+  const { isMantenimiento, isAdmin, isVigilante } = useAuthStore()
+  const isMaintenancePage = pathname.includes("/mantenimiento")
 
   // Don't show footer for special roles
-  if (isAuxiliar || isMaintenancePage || isAdmin || isVigilante) return null
+  if (isMantenimiento || isMaintenancePage || isAdmin || isVigilante) return null
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 bg-[#D4AF37] border-t border-[#c9a633] py-2 px-4 z-10">

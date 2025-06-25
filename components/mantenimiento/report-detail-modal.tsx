@@ -1,7 +1,7 @@
 "use client"
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useAuxiliarTasksStore } from "@/lib/auxiliar-tasks-store"
+import { useMantenimientoTasksStore } from "@/lib/mantenimiento-tasks-store"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { useState } from "react"
@@ -14,7 +14,7 @@ interface ReportDetailModalProps {
 }
 
 export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportDetailModalProps) {
-  const { reports } = useAuxiliarTasksStore()
+  const { reports } = useMantenimientoTasksStore()
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
   const report = reports.find((r) => r.id === reportId)

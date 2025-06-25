@@ -39,7 +39,7 @@ export default function CondominiumReportsPage() {
         ) : (
           <div className="grid grid-cols-2 gap-4">
             {filteredCondominiums.map((condo) => (
-              <Link key={condo.id} href={`/auxiliar/reportes-condominio/${condo.id}`}>
+              <Link key={condo.id} href={`/mantenimiento/reportes-condominio/${condo.id}`}>
                 <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full">
                   <div className="relative h-40 w-full">
                     <Image

@@ -2,60 +2,35 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { useAuxiliarTasksStore } from "@/lib/auxiliar-tasks-store"
+import { useMantenimientoTasksStore } from "@/lib/mantenimiento-tasks-store"
 import { useAuthStore } from "@/lib/auth"
-import { ImagePlus, X } from "lucide-react"
+import { ImagePlus, X, CheckCircle } from "lucide-react"
+import { Input } from "@/components/ui/input"
 
-interface NewReportModalProps {
+interface CompleteTaskModalProps {
   isOpen: boolean
   onClose: () => void
-  preselectedCondominium?: string
+  taskId: string
 }
 
-// Lista de secciones disponibles
-const SECTIONS = [
-  "Torre A",
-  "Torre B",
-  "Torre C",
-  "Área Común",
-  "Estacionamiento",
-  "Jardines",
-  "Alberca",
-  "Gimnasio",
-  "Salón de eventos",
-]
-
-// Lista de condominios disponibles
-const CONDOMINIUMS = [
-  "Condominio 1-Los Arcos",
-  "Condominio 2-Las Palmas",
-  "Condominio 3-Vista Hermosa",
-  "Condominio 4-El Mirador",
-]
-
-export default function NewReportModal({ isOpen, onClose, preselectedCondominium }: NewReportModalProps) {
-  const { addReport } = useAuxiliarTasksStore()
+export default function CompleteTaskModal({ isOpen, onClose, taskId }: CompleteTaskModalProps) {
+  const { tasks, addReport, completeTask } = useMantenimientoTasksStore()
   const { user } = useAuthStore()
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [section, setSection] = useState("")
-  const [condominium, setCondominium] = useState(preselectedCondominium || "")
+  const [comment, setComment] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [images, setImages] = useState<string[]>([])
   const [previewImages, setPreviewImages] = useState<string[]>([])
 
-  // Si se proporciona un condominio preseleccionado, actualizarlo cuando cambie
-  useEffect(() => {
-    if (preselectedCondominium) {
-      setCondominium(preselectedCondominium)
-    }
-  }, [preselectedCondominium])
+  // Buscar la tarea por ID
+  const task = tasks.find((t) => t.id === taskId)
+
+  // Si no se encuentra la tarea, no renderizar nada
+  if (!task) return null
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -83,28 +58,32 @@ export default function NewReportModal({ isOpen, onClose, preselectedCondominium
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!title.trim() || !description.trim() || !user || !section || !condominium) return
+    if (!comment.trim() || !user) return
 
     setIsSubmitting(true)
 
+    // Obtener la tarea actual
+    const currentTask = tasks.find((t) => t.id === taskId)
+    if (!currentTask) return
+
+    // Actualizar el estado de la tarea a completada
+    completeTask(taskId)
+
+    // Crear un reporte asociado a esta tarea completada
     addReport({
-      title: title.trim(),
-      description: description.trim(),
-      auxiliarId: user.id,
-      auxiliarName: `${user.firstName} ${user.lastName}`,
+      title: `Tarea completada: ${currentTask.title}`,
+      description: comment,
+      mantenimientoId: user.id,
+      mantenimientoName: `${user.firstName} ${user.lastName}`,
+      taskId: taskId,
+      status: "completed",
+      // Transferir la sección y el condominio de la tarea al reporte
+      section: currentTask.section,
+      condominium: currentTask.condominium,
       images: images,
-      status: "pending",
-      section: section,
-      condominium: condominium,
     })
 
     setIsSubmitting(false)
-    setTitle("")
-    setDescription("")
-    setSection("")
-    setCondominium(preselectedCondominium || "")
-    setImages([])
-    setPreviewImages([])
     onClose()
   }
 
@@ -119,73 +98,27 @@ export default function NewReportModal({ isOpen, onClose, preselectedCondominium
           >
             <X className="h-5 w-5" />
           </button>
-          <DialogTitle className="text-xl pr-8">Nueva Actividad</DialogTitle>
+          <DialogTitle className="text-xl pr-8">Completar Tarea</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
-          <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm">
-              Título
-            </Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Título de la actividad"
-              required
-              className="bg-gray-200 text-black text-base"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="condominium" className="text-sm">
-              Condominio
-            </Label>
-            <select
-              id="condominium"
-              value={condominium}
-              onChange={(e) => setCondominium(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-200 text-black text-base"
-              required
-            >
-              <option value="">Seleccionar condominio</option>
-              {CONDOMINIUMS.map((condo) => (
-                <option key={condo} value={condo}>
-                  {condo}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="section" className="text-sm">
-              Sección
-            </Label>
-            <select
-              id="section"
-              value={section}
-              onChange={(e) => setSection(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-200 text-black text-base"
-              required
-            >
-              <option value="">Seleccionar sección</option>
-              {SECTIONS.map((sect) => (
-                <option key={sect} value={sect}>
-                  {sect}
-                </option>
-              ))}
-            </select>
+          <div className="bg-green-50 p-3 rounded-md flex items-start">
+            <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+            <div>
+              <p className="font-medium text-sm">Vas a marcar como completada la siguiente tarea:</p>
+              <p className="text-gray-700 mt-1 text-sm">{task.title}</p>
+            </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="description" className="text-sm">
-              Descripción
+              Descripción del trabajo realizado
             </Label>
             <Textarea
               id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe la actividad o situación..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Describe el trabajo que realizaste para completar esta tarea..."
               className="bg-gray-200 text-black min-h-[120px] text-base"
               required
             />
@@ -193,7 +126,7 @@ export default function NewReportModal({ isOpen, onClose, preselectedCondominium
 
           {/* Sección para subir imágenes */}
           <div className="space-y-2">
-            <Label className="text-sm">Imágenes</Label>
+            <Label className="text-sm">Imágenes del trabajo realizado</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
               <div className="flex flex-wrap gap-2 mb-3">
                 {previewImages.map((img, index) => (
@@ -214,11 +147,14 @@ export default function NewReportModal({ isOpen, onClose, preselectedCondominium
                 ))}
               </div>
 
-              <Label htmlFor="image-upload" className="flex flex-col items-center justify-center cursor-pointer py-3">
+              <Label
+                htmlFor="image-upload-task"
+                className="flex flex-col items-center justify-center cursor-pointer py-3"
+              >
                 <ImagePlus className="h-8 w-8 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-500">Toca para agregar imágenes</span>
                 <Input
-                  id="image-upload"
+                  id="image-upload-task"
                   type="file"
                   accept="image/*"
                   multiple
@@ -240,10 +176,10 @@ export default function NewReportModal({ isOpen, onClose, preselectedCondominium
             </Button>
             <Button
               type="submit"
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Enviando..." : "Crear Actividad"}
+              {isSubmitting ? "Enviando..." : "Completar Tarea"}
             </Button>
           </DialogFooter>
         </form>

@@ -6,17 +6,17 @@ import { useState, useEffect } from "react"
 import { PlusCircle, ClipboardList, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/lib/auth"
-import { useAuxiliarTasksStore } from "@/lib/auxiliar-tasks-store"
+import { useMantenimientoTasksStore } from "@/lib/mantenimiento-tasks-store"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
-import TaskDetailModal from "@/components/auxiliar/task-detail-modal"
-import CompleteTaskModal from "@/components/auxiliar/complete-task-modal"
-import AddReminderModal from "@/components/auxiliar/add-reminder-modal"
+import TaskDetailModal from "@/components/mantenimiento/task-detail-modal"
+import CompleteTaskModal from "@/components/mantenimiento/complete-task-modal"
+import AddReminderModal from "@/components/mantenimiento/add-reminder-modal"
 import { useRouter } from "next/navigation"
 
-export default function AuxiliarPage() {
+export default function MantenimientoPage() {
   const { user, isAuthenticated, isMantenimiento } = useAuthStore()
-  const { tasks, updateTask } = useAuxiliarTasksStore()
+  const { tasks, updateTask } = useMantenimientoTasksStore()
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false)

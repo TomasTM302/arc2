@@ -3,7 +3,8 @@ import pool from '@/lib/db'
 
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
   try {
-    await pool.query('UPDATE usuarios SET activo = FALSE WHERE id = ?', [params.id])
+    await pool.query('DELETE FROM usuario_propiedad WHERE usuario_id = ?', [params.id])
+    await pool.query('DELETE FROM usuarios WHERE id = ?', [params.id])
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error(err)

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { useAuxiliarTasksStore } from "@/lib/auxiliar-tasks-store"
+import { useMantenimientoTasksStore } from "@/lib/mantenimiento-tasks-store"
 import { useAuthStore } from "@/lib/auth"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
@@ -18,7 +18,7 @@ interface TaskDetailModalProps {
 }
 
 export default function TaskDetailModal({ isOpen, onClose, taskId }: TaskDetailModalProps) {
-  const { tasks, addComment, updateTask } = useAuxiliarTasksStore()
+  const { tasks, addComment, updateTask } = useMantenimientoTasksStore()
   const { user } = useAuthStore()
   const [comment, setComment] = useState("")
 

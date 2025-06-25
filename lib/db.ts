@@ -1,6 +1,11 @@
 import mysql from 'mysql2/promise'
 
-
+const required = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME']
+for (const key of required) {
+  if (!process.env[key]) {
+    console.warn(`Warning: environment variable ${key} is not set`)
+  }
+}
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,

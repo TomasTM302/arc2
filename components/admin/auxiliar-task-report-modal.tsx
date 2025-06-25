@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useAuxiliarTasksStore, type Report } from "@/lib/auxiliar-tasks-store"
+import { useMantenimientoTasksStore, type Report } from "@/lib/mantenimiento-tasks-store"
 import { useAuthStore } from "@/lib/auth"
 import { useCondominiumStore } from "@/lib/condominium-store"
 import { format } from "date-fns"
@@ -21,7 +21,7 @@ interface AuxiliarTaskReportModalProps {
 }
 
 function AuxiliarTaskReportModalComponent({ isOpen, onClose }: AuxiliarTaskReportModalProps) {
-  const { tasks, reports } = useAuxiliarTasksStore()
+  const { tasks, reports } = useMantenimientoTasksStore()
   const { users } = useAuthStore()
   const { condominiums } = useCondominiumStore()
   const [selectedUser, setSelectedUser] = useState<string>("all")
@@ -156,7 +156,7 @@ function AuxiliarTaskReportModalComponent({ isOpen, onClose }: AuxiliarTaskRepor
 
     // Filtrar por usuario
     if (selectedUser !== "all") {
-      filtered = filtered.filter((report) => report.auxiliarId === selectedUser)
+      filtered = filtered.filter((report) => report.mantenimientoId === selectedUser)
     }
 
     // Filtrar por condominio
@@ -299,7 +299,7 @@ function AuxiliarTaskReportModalComponent({ isOpen, onClose }: AuxiliarTaskRepor
         // Tabla resumen de actividades
         const reportRows = filteredReports.map((report) => [
           report.title,
-          report.auxiliarName,
+          report.mantenimientoName,
           report.condominium || "No especificado",
           formatDate(report.createdAt),
         ])
@@ -355,7 +355,7 @@ function AuxiliarTaskReportModalComponent({ isOpen, onClose }: AuxiliarTaskRepor
           const leftCol = 17
           let infoY = lastY + 20
 
-          doc.text(`Personal: ${report.auxiliarName}`, leftCol, infoY)
+          doc.text(`Personal: ${report.mantenimientoName}`, leftCol, infoY)
           infoY += 8
 
           // Limitar longitud del texto del condominio
@@ -744,7 +744,7 @@ function AuxiliarTaskReportModalComponent({ isOpen, onClose }: AuxiliarTaskRepor
                           return (
                             <tr key={`report-${report.id}`} className="border-t">
                               <td className="py-2 px-3">{report.title}</td>
-                              <td className="py-2 px-3">{report.auxiliarName}</td>
+                              <td className="py-2 px-3">{report.mantenimientoName}</td>
                               <td className="py-2 px-3">{report.condominium || "No especificado"}</td>
                               <td className="py-2 px-3">
                                 <span className="text-green-600">Actividad</span>

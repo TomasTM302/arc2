@@ -9,7 +9,7 @@ import { useAuthStore } from "@/lib/auth"
 import { ClipboardList, FileText, User, LogOut } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-media-query"
 
-export default function AuxiliarLayout({ children }: { children: React.ReactNode }) {
+export default function MantenimientoLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const { logout, user, isAuthenticated, isMantenimiento } = useAuthStore()
@@ -23,8 +23,8 @@ export default function AuxiliarLayout({ children }: { children: React.ReactNode
     }
   }, [isAuthenticated, isMantenimiento, router])
 
-  // No mostrar el layout de auxiliar para páginas que no son de auxiliar
-  if (!pathname.startsWith("/auxiliar")) {
+  // No mostrar el layout de mantenimiento para páginas que no son de mantenimiento
+  if (!pathname.startsWith("/mantenimiento")) {
     return <div className="min-h-screen">{children}</div>
   }
 
@@ -43,22 +43,22 @@ export default function AuxiliarLayout({ children }: { children: React.ReactNode
       <nav className="bg-[#0e2c52] text-white border-t border-[#1a4580] shadow-md">
         <div className="flex">
           <NavLink
-            href="/auxiliar"
+            href="/mantenimiento"
             icon={<ClipboardList size={18} />}
             label="Mis Tareas"
-            isActive={pathname === "/auxiliar"}
+            isActive={pathname === "/mantenimiento"}
           />
           <NavLink
-            href="/auxiliar/reportes"
+            href="/mantenimiento/reportes"
             icon={<FileText size={18} />}
             label="Mis Reportes"
-            isActive={pathname === "/auxiliar/reportes"}
+            isActive={pathname === "/mantenimiento/reportes"}
           />
           <NavLink
-            href="/auxiliar/perfil"
+            href="/mantenimiento/perfil"
             icon={<User size={18} />}
             label="Mi Perfil"
-            isActive={pathname === "/auxiliar/perfil"}
+            isActive={pathname === "/mantenimiento/perfil"}
           />
           <button
             onClick={logout}
@@ -78,17 +78,17 @@ export default function AuxiliarLayout({ children }: { children: React.ReactNode
         <footer className="fixed bottom-0 left-0 right-0 bg-[#0e2c52] border-t border-[#1a4580] py-2 px-4 z-10">
           <div className="flex justify-around items-center">
             <Link
-              href="/auxiliar"
-              className={`flex flex-col items-center ${pathname === "/auxiliar" ? "text-white" : "text-gray-400"}`}
+              href="/mantenimiento"
+              className={`flex flex-col items-center ${pathname === "/mantenimiento" ? "text-white" : "text-gray-400"}`}
             >
               <ClipboardList size={24} />
               <span className="text-xs font-medium mt-1">Tareas</span>
             </Link>
 
             <Link
-              href="/auxiliar/reportes"
+              href="/mantenimiento/reportes"
               className={`flex flex-col items-center ${
-                pathname === "/auxiliar/reportes" ? "text-white" : "text-gray-400"
+                pathname === "/mantenimiento/reportes" ? "text-white" : "text-gray-400"
               }`}
             >
               <FileText size={24} />
@@ -96,8 +96,8 @@ export default function AuxiliarLayout({ children }: { children: React.ReactNode
             </Link>
 
             <Link
-              href="/auxiliar/perfil"
-              className={`flex flex-col items-center ${pathname === "/auxiliar/perfil" ? "text-white" : "text-gray-400"}`}
+              href="/mantenimiento/perfil"
+              className={`flex flex-col items-center ${pathname === "/mantenimiento/perfil" ? "text-white" : "text-gray-400"}`}
             >
               <User size={24} />
               <span className="text-xs font-medium mt-1">Perfil</span>

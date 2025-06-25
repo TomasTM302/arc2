@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { useAuxiliarTasksStore } from "@/lib/auxiliar-tasks-store"
+import { useMantenimientoTasksStore } from "@/lib/mantenimiento-tasks-store"
 import { useAuthStore } from "@/lib/auth"
 import { DatePicker } from "@/components/ui/date-picker"
 import { format } from "date-fns"
@@ -22,7 +22,7 @@ interface AddReminderModalProps {
 }
 
 export default function AddReminderModal({ isOpen, onClose, preselectedCondominium }: AddReminderModalProps) {
-  const { addTask } = useAuxiliarTasksStore()
+  const { addTask } = useMantenimientoTasksStore()
   const { user } = useAuthStore()
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")

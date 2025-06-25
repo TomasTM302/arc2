@@ -7,8 +7,9 @@ import { ScanBarcode, Shield, X, CheckCircle, AlertTriangle, UserCircle2 } from 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
-import QrScanHistory from "@/components/qr-scan-history"
+import EntryHistoryTable from "@/components/qr-scan-history"
 import Image from "next/image"
+import { useAuthStore } from "@/lib/auth"
 
 interface QrData {
   [key: string]: string
@@ -16,10 +17,13 @@ interface QrData {
 }
 
 interface ScanHistoryEntry {
-  qr_data: string
-  license_plate_image_url?: string | null
-  ine_image_url?: string | null
-  // No necesitamos guardar FOTO_INVITADO_URL aquí de nuevo, ya está en qr_data
+  ine: string | null
+  tipo?: string
+  vigilante_id?: string | number
+  condominio_id?: string | number
+  placa_vehiculo?: string | null
+  scanned_at?: string
+  fecha_entrada?: string
 }
 
 export default function VigilanteDashboardPage() {
@@ -37,6 +41,8 @@ export default function VigilanteDashboardPage() {
 
   const [isUploading, setIsUploading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+
+  const { user } = useAuthStore()
 
   const licensePlateInputRef = useRef<HTMLInputElement>(null)
   const ineInputRef = useRef<HTMLInputElement>(null)
@@ -189,13 +195,17 @@ export default function VigilanteDashboardPage() {
     }
 
     const entryToSave: ScanHistoryEntry = {
-      qr_data: currentDecodedText,
-      license_plate_image_url: licensePlateUrl,
-      ine_image_url: ineUrl,
-    }
+      ine: ineUrl,
+      tipo: 'invitado',
+      vigilante_id: user?.id,
+      condominio_id: user?.condominiumId,
+      placa_vehiculo: licensePlateUrl,
+      scanned_at: currentDecodedText ?? '',
+      fecha_entrada: new Date().toISOString(),
+    } as any
 
     try {
-      const res = await fetch("/api/scan-history", {
+      const res = await fetch("/api/entry-history", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(entryToSave),
@@ -451,7 +461,7 @@ export default function VigilanteDashboardPage() {
         </DialogContent>
       </Dialog>
 
-      <QrScanHistory />
+      <EntryHistoryTable />
     </div>
   )
 }

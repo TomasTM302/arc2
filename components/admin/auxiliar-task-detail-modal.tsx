@@ -5,20 +5,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { useAuxiliarTasksStore } from "@/lib/auxiliar-tasks-store"
+import { useMantenimientoTasksStore } from "@/lib/mantenimiento-tasks-store"
 import { useAuthStore } from "@/lib/auth"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { Send, Trash } from "lucide-react"
 
-interface AuxiliarTaskDetailModalProps {
+interface MaintenanceTaskDetailModalProps {
   isOpen: boolean
   onClose: () => void
   taskId: string
 }
 
-export default function AuxiliarTaskDetailModal({ isOpen, onClose, taskId }: AuxiliarTaskDetailModalProps) {
-  const { tasks, addComment, deleteTask } = useAuxiliarTasksStore()
+export default function MaintenanceTaskDetailModal({ isOpen, onClose, taskId }: MaintenanceTaskDetailModalProps) {
+  const { tasks, addComment, deleteTask } = useMantenimientoTasksStore()
   const { user, users } = useAuthStore()
   const [newComment, setNewComment] = useState("")
   const [isDeleting, setIsDeleting] = useState(false)
@@ -60,10 +60,10 @@ export default function AuxiliarTaskDetailModal({ isOpen, onClose, taskId }: Aux
     return format(new Date(dateString), "dd MMM yyyy HH:mm", { locale: es })
   }
 
-  // Obtener nombre de auxiliar
-  const getAuxiliarName = (auxiliarId: string) => {
-    const auxiliar = users.find((user) => user.id === auxiliarId)
-    return auxiliar ? `${auxiliar.firstName} ${auxiliar.lastName}` : "Desconocido"
+  // Obtener nombre del personal
+  const getPersonalName = (personId: string) => {
+    const person = users.find((u) => u.id === personId)
+    return person ? `${person.firstName} ${person.lastName}` : "Desconocido"
   }
 
   // Función para enviar un comentario
@@ -110,7 +110,7 @@ export default function AuxiliarTaskDetailModal({ isOpen, onClose, taskId }: Aux
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-gray-500">Asignado a</p>
-              <p className="font-medium">{getAuxiliarName(task.assignedTo)}</p>
+              <p className="font-medium">{getPersonalName(task.assignedTo)}</p>
             </div>
             <div>
               <p className="text-gray-500">Estado</p>

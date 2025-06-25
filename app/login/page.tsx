@@ -53,7 +53,7 @@ export default function LoginPage() {
         if (isVigilante) {
           router.push("/vigilante")
         } else if (isMantenimiento) {
-          router.push("/auxiliar")
+          router.push("/mantenimiento")
         } else {
           router.push(redirect)
         }

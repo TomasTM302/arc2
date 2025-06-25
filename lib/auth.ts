@@ -10,6 +10,7 @@ export interface User {
   email: string
   phone: string
   house: string
+  condominiumId: string
   role: UserRole
   createdAt: string
 }
@@ -25,6 +26,7 @@ interface RegisterData {
   email: string
   phone: string
   house: string
+  condominiumId: string
   password: string
   role: UserRole
 }

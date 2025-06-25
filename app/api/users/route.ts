@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import pool from '@/lib/db'
+import { appRoleFromDbRole, dbRoleFromAppRole } from '@/lib/roles'
 
 export async function GET() {
   try {
@@ -8,7 +9,8 @@ export async function GET() {
       `SELECT
         u.id, u.nombre, u.apellido, u.email, u.telefono, u.fecha_registro,
         r.nombre AS rol_nombre,
-        p.numero AS casa_numero
+        p.numero AS casa_numero,
+        p.condominio_id
       FROM usuarios u
       JOIN roles r ON u.rol_id = r.id
       LEFT JOIN usuario_propiedad up ON u.id = up.usuario_id
@@ -23,7 +25,8 @@ export async function GET() {
       email: u.email,
       phone: u.telefono,
       house: u.casa_numero || '',
-      role: u.rol_nombre,
+      condominiumId: u.condominio_id ? u.condominio_id.toString() : '',
+      role: appRoleFromDbRole(u.rol_nombre),
       createdAt: u.fecha_registro,
     }))
 
@@ -38,7 +41,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { firstName, lastName, email, phone, house, password, role } =
+  const { firstName, lastName, email, phone, house, condominiumId, password, role } =
     await request.json()
 
   if (!firstName || !lastName || !email || !phone || !password || !role) {
@@ -49,10 +52,19 @@ export async function POST(request: Request) {
   }
 
   try {
-    const [roleRows]: any = await pool.query(
-      'SELECT id FROM roles WHERE nombre = ? LIMIT 1',
-      [role]
-    )
+    const dbRole = dbRoleFromAppRole(role)
+    let roleRows: any
+    if (role === 'mantenimiento') {
+      ;[roleRows] = await pool.query(
+        'SELECT id FROM roles WHERE nombre IN (?, ?) LIMIT 1',
+        ['Mantenimiento', 'Auxiliar']
+      )
+    } else {
+      ;[roleRows] = await pool.query(
+        'SELECT id FROM roles WHERE nombre = ? LIMIT 1',
+        [dbRole]
+      )
+    }
     if (roleRows.length === 0) {
       return NextResponse.json(
         { success: false, message: 'Rol inválido' },
@@ -67,10 +79,10 @@ export async function POST(request: Request) {
     )
     const userId = result.insertId
 
-    if (house) {
+    if (house && condominiumId) {
       const [propRows]: any = await pool.query(
-        'SELECT id FROM propiedades WHERE numero = ? LIMIT 1',
-        [house]
+        'SELECT id FROM propiedades WHERE numero = ? AND condominio_id = ? LIMIT 1',
+        [house, condominiumId]
       )
       if (propRows.length) {
         await pool.query(
@@ -87,6 +99,7 @@ export async function POST(request: Request) {
       email,
       phone,
       house,
+      condominiumId: condominiumId || '',
       role,
       createdAt: new Date().toISOString(),
     }
